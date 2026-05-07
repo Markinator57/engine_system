@@ -21,4 +21,4 @@ After that, a function for the entire cycle, with different free-choice design p
 
 ```
 
-Feel free to clone the repo and edit and commit whatever you guys want.
+Feel free to clone the repo and branch and edit and commit whatever you guys want.
