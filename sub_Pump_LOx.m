@@ -1,4 +1,10 @@
 function [properties, key_values] = sub_Pump_LOx(inputs, properties)
+
+    % TODO: Research validity of Formulary equations in real life
+    %       Polytropic exponent?
+    %       Add 1-eta energy to temperature?
+    %       Research more realistic equations/transformations
+    
     p_intermediate = properties.p + inputs.delta_p_pump_LOx;
     properties.p = p_intermediate - inputs.delta_p_partial;
     

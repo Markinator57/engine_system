@@ -1,4 +1,8 @@
 function [key_values, properties_flow] = cycle_solver ()
+
+    % TODO: Add iterations for convergence, convergence criteria is p_fuel & p_oxi == 80 bar at injector outlet
+    %       Add visualization tools for the flow values all over the cycle
+
     [inputs, properties_fuel, properties_oxidizer] = engine_inputs();
 
     %% Tanks 🡇

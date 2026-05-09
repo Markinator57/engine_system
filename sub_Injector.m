@@ -1,5 +1,8 @@
 function [properties, key_values] = sub_Injector(inputs, properties)
-    % Ask porous injector team
+
+    % TODO: Check ALL assumptions, ask porous injector team
+    %       wtf is a porous injector?
+
     properties.T = properties.T; % ?
 
     properties.p = (properties.p - inputs.delta_p_partial) * (1 - inputs.delta_p_inj_percent);

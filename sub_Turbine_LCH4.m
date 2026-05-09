@@ -1,4 +1,10 @@
 function [properties, key_values] = sub_Turbine_LCH4(inputs, properties)
+
+    % TODO: Research more accurate models
+    %       Check isentropic assumption
+    %       Desimplify model using only c_p at one instance for equation over range of T and p, and thuus, over range of c_p values.
+    %       Should use here 1-eta energy as T like in pump? or should not use in pump?
+
     T_in = properties.T;
     properties.T = - inputs.P_turbine_LCH4_needed / (inputs.eta_turbine_LCH4 * inputs.m_dot_fuel * properties.c_p) + properties.T;
 

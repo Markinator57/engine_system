@@ -1,5 +1,11 @@
 function [key_values] = sub_Thrust_Chamber(inputs, properties_oxidizer, properties_fuel)
-    % Assumes ideally adapted nozzle --> review
+
+    % TODO: Setting p_out to 1 atm assumes ideally adapted nozzle, we want that yes,
+    %           but that also depends on p_CC, so need to review way of formulating, so as to not hardcode it
+    %       Add some Q_dot model here?
+    %       Expand model to more accurate?
+    %       Ask thrust chamber, they surely already researched something
+
     p_out = 101300;
     p_in = (properties_oxidizer.p + properties_fuel.p) / 2;
     T_in = (properties_oxidizer.T + properties_fuel.T) / 2;
