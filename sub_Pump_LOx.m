@@ -1,9 +1,13 @@
-function [T_out, p_out, rho_out, P_pump] = sub_Pump_LOx(T_in, p_in, rho_in, eta, delta_p_Pump, delta_p_lines_partial, c_p, m_dot)
-    p_intermediate = p_in + delta_p_Pump;
-    p_out = p_intermediate - delta_p_lines_partial;
+function [properties, key_values] = sub_Pump_LOx(inputs, properties)
+    p_intermediate = properties.p + inputs.delta_p_pump_LOx;
+    properties.p = p_intermediate - inputs.delta_p_partial;
     
-    P_pump = (m_dot * delta_p_Pump) / (eta * rho_in);
+    P_pump = (inputs.m_dot_oxidizer * inputs.delta_p_pump_LOx) / (inputs.eta_pump_LOx * properties.rho);
     
-    T_out = T_in + P_pump * (1 - eta) / c_p;
-end
+    properties.T = properties.T + P_pump * (1 - inputs.eta_pump_LOx) / properties.c_p;
+    
+    properties.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Oxygen');
+    properties.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties.T, 'P', properties.p, 'Oxygen');
 
+    key_values = P_pump;
+end

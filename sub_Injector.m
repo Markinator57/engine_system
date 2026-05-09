@@ -1,0 +1,12 @@
+function [properties, key_values] = sub_Injector(inputs, properties)
+    % Ask porous injector team
+    properties.T = properties.T; % ?
+
+    properties.p = (properties.p - inputs.delta_p_partial) * (1 - inputs.delta_p_inj_percent);
+
+    properties.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Methane');
+    properties.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties.T, 'P', properties.p, 'Methane');
+
+    key_values.T_ingoing = properties.T;
+    key_values.p_ingoing = properties.p;
+end

@@ -21,4 +21,9 @@ After that, a function for the entire cycle, with different free-choice design p
 
 ```
 
+## Dependencies
+
+In multiple subsystem functions is now the CoolProp python library implemented, wrapped within MATLAB, as we had previously discussed, but also now the CEA python library as well, mostly for Combustion Chamber calculations.
+This means first, if you don't have it yet, you need to install python, a version of it compatible with your MATLAB version, and then in for that python version install the libraries.
+
 Feel free to clone the repo and branch and edit and commit whatever you guys want.

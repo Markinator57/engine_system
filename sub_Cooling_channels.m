@@ -1,10 +1,20 @@
-function [T_out, p_out, rho_out] = sub_Cooling_channels(T_in, p_in, rho_in, eta, Q_dot, delta_p_lines_partial, c_p, m_dot)
+function [properties, key_values] = sub_Cooling_channels(inputs, properties)
     % m_dot * h_in + Q_dot = m_dot * h_out
-    h_in = c_p * T_in;
-    h_out = h_in + Q_dot / m_dot;
+    h_in = py.CoolProp.CoolProp.PropsSI('H', 'P', properties.p, 'T', properties.T, 'Methane');
+    h_out = h_in + inputs.Q_dot / inputs.m_dot_fuel;
     
-    % T_out --> lookup table / find equation
+    % Assumes Isobaric --> expand model later
+    % Dependency on CoolProp library!!
+    properties.p
+    T_in = properties.T;
+    properties.T = py.CoolProp.CoolProp.PropsSI('T', 'P', properties.p, 'H', h_out, 'Methane');
+    delta_T = properties.T - T_in;
 
-    p_out = p_in - delta_p_lines_partial;
+    properties.p = properties.p - inputs.delta_p_partial;
+
+    properties.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Methane');
+    properties.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties.T, 'P', properties.p, 'Methane');
+
+    key_values = delta_T;
 end
 
