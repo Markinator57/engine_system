@@ -1,6 +1,6 @@
-function [T_CC, M] = get_cea_properties(p_CC, R_OF)
+function [T_CC, M, k] = get_cea_properties(p_CC, R_OF)
     % Inputs:
-    %   p_CC  - chamber pressure [bar]
+    %   p_CC  - chamber pressure [Pa]
     %   R_OF  - oxidizer to fuel mixture ratio [-]
     % Outputs:
     %   T_CC  - adiabatic flame temperature [K]
@@ -21,5 +21,5 @@ function [T_CC, M] = get_cea_properties(p_CC, R_OF)
     % M and K: get_Chamber_MolWt_gamma returns a tuple
     MK      = cell(cea.get_Chamber_MolWt_gamma(Pc=p_CC_psia, MR=R_OF));
     M       = double(MK{1});   % [g/mol]
-    % kappa   = double(MK{2});   % [-]
+    k       = double(MK{2});   % [-]
 end

@@ -1,4 +1,4 @@
-function [properties, key_values] = sub_Injector(inputs, properties)
+function [properties, key_values] = sub_Injector_LOx(inputs, properties)
 
     % TODO: Check ALL assumptions, ask porous injector team
     %       wtf is a porous injector?
@@ -7,8 +7,8 @@ function [properties, key_values] = sub_Injector(inputs, properties)
 
     properties.p = (properties.p - inputs.delta_p_partial) * (1 - inputs.delta_p_inj_percent);
 
-    properties.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Methane');
-    properties.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties.T, 'P', properties.p, 'Methane');
+    properties.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Oxygen');
+    properties.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties.T, 'P', properties.p, 'Oxygen');
 
     key_values.T_ingoing = properties.T;
     key_values.p_ingoing = properties.p;

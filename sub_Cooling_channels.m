@@ -9,7 +9,6 @@ function [properties, key_values] = sub_Cooling_channels(inputs, properties)
     h_in = py.CoolProp.CoolProp.PropsSI('H', 'P', properties.p, 'T', properties.T, 'Methane');
     h_out = h_in + inputs.Q_dot / inputs.m_dot_fuel;
     
-    properties.p
     T_in = properties.T;
     properties.T = py.CoolProp.CoolProp.PropsSI('T', 'P', properties.p, 'H', h_out, 'Methane');
     delta_T = properties.T - T_in;

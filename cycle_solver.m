@@ -1,7 +1,7 @@
 function [key_values, properties_flow] = cycle_solver ()
 
     % TODO: Add iterations for convergence, convergence criteria is p_fuel & p_oxi == 80 bar at injector outlet
-    %       Add visualization tools for the flow values all over the cycle
+    %       Add *more* visualization tools for the flow values all over the cycle
 
     [inputs, properties_fuel, properties_oxidizer] = engine_inputs();
 
@@ -37,12 +37,16 @@ function [key_values, properties_flow] = cycle_solver ()
 
     %% Injector 🡇
 
-    [properties_fuel, key_values.TC_Ingoing_fuel] = sub_Injector(inputs, properties_fuel);
+    [properties_fuel, key_values.TC_Ingoing_fuel] = sub_Injector_CH4(inputs, properties_fuel);
     properties_flow.fuel.Injector = properties_fuel;
 
-    [properties_oxidizer, key_values.TC_Ingoing_oxidizer] = sub_Injector(inputs, properties_oxidizer);
+    [properties_oxidizer, key_values.TC_Ingoing_oxidizer] = sub_Injector_LOx(inputs, properties_oxidizer);
     properties_flow.oxidizer.Injector = properties_oxidizer;
 
     %% Thrust Chamber 🡇
     [key_values.Thrust_Chamber] = sub_Thrust_Chamber(inputs, properties_oxidizer, properties_fuel);
+
+
+    %% Visualization
+    plot_cycle(key_values, properties_flow)
 end
