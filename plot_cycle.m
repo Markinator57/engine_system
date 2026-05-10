@@ -147,7 +147,7 @@ function plot_cycle(key_values, properties_flow)
     %% --- Colorbar: Temperature (upper right) ---
     ax_cT = axes('Parent', gcf, 'Position', [0 0 0.001 0.001], 'Visible', 'off');
     colormap(ax_cT, cmap_T);
-    caxis(ax_cT, [T_lo, T_hi]);
+    clim(ax_cT, [T_lo, T_hi]);
     cb_T                = colorbar(ax_cT);
     cb_T.Position       = [0.862 0.52 0.022 0.42];
     cb_T.Color          = [0.70 0.70 0.75];
@@ -160,7 +160,7 @@ function plot_cycle(key_values, properties_flow)
     %% --- Colorbar: Pressure (lower right) ---
     ax_cp = axes('Parent', gcf, 'Position', [0 0 0.001 0.001], 'Visible', 'off');
     colormap(ax_cp, cmap_p);
-    caxis(ax_cp, [p_lo, p_hi]);
+    clim(ax_cp, [p_lo, p_hi]);
     cb_p                = colorbar(ax_cp);
     cb_p.Position       = [0.862 0.05 0.022 0.42];
     cb_p.Color          = [0.70 0.70 0.75];

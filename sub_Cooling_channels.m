@@ -13,7 +13,7 @@ function [properties, key_values] = sub_Cooling_channels(inputs, properties)
     properties.T = py.CoolProp.CoolProp.PropsSI('T', 'P', properties.p, 'H', h_out, 'Methane');
     delta_T = properties.T - T_in;
 
-    properties.p = properties.p - inputs.delta_p_partial;
+    properties.p = properties.p - inputs.delta_p_cooling_channels - inputs.delta_p_partial;
 
     properties.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Methane');
     properties.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties.T, 'P', properties.p, 'Methane');
