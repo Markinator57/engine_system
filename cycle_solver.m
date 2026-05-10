@@ -23,6 +23,7 @@ function [key_values, properties_flow] = cycle_solver ()
     %% Cooling Channels 🡇 (only fuel)
 
     [properties_fuel, key_values.delta_T_Cooling_Channels] = sub_Cooling_channels(inputs, properties_fuel);
+    key_values.Q_dot_Cooling = inputs.Q_dot;
     properties_flow.fuel.Cooling_Channels = properties_fuel;
 
     %% Turbine LCH4 🡇 (only fuel)
