@@ -36,11 +36,15 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.delta_p_feed = 2e5;              % [Pa]      % (Research) 
     inputs.delta_p_partial = inputs.delta_p_feed / 5;   % (Research and see if valid way to implement)
 
-    inputs.delta_p_pump_LCH4 = 12e6;        % [Pa]      % (First iteration, need only be decent)
-    inputs.delta_p_pump_LOx = 10e6;         % [Pa]      % (First iteration, need only be decent)
+    inputs.delta_p_pump_LCH4 = 14e6;        % [Pa]      % (First iteration, need only be decent)
+    inputs.delta_p_pump_LOx = 9.84e6;       % [Pa]      % (First iteration, need only be decent)
+
+    % Turbine exit pressure — forced by injector inlet requirement.
+    % Injector model drops p by (1 - delta_p_inj_percent), so to land exactly at p_CC: p_in = p_CC / (1 - pct)
+    inputs.p_turbine_exit = inputs.p_CC_req / (1 - inputs.delta_p_inj_percent);
 
     %% Cooling assumptions
-    inputs.Q_dot = 2e6;                     % [J/s]     % (Ask Thrust Chamber)
+    inputs.Q_dot = 5e6;                     % [J/s]     % (Ask Thrust Chamber)
 
     %% Fuel properties (input here initial properties
     properties_fuel.T = 110;                % [K]       % (Design choice, fairly unimportant, just a quick research)
