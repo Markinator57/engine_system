@@ -9,15 +9,17 @@ function [key_values] = sub_Thrust_Chamber(inputs, properties_oxidizer, properti
 
     p_out = 101300;
     p_in = (properties_oxidizer.p + properties_fuel.p) / 2;
-    T_in = (properties_oxidizer.T + properties_fuel.T) / 2;
 
-    % Dependency on CoolProp library!!
-    [T_CC, Molar_mass, kappa] = get_cea_properties(p_in, inputs.ROF);
+    [T_CC_ideal, Molar_mass, kappa] = get_cea_properties(p_in, inputs.ROF);
+
+    % Apply combustion efficiency: incomplete combustion lowers effective flame temperature
+    T_CC = T_CC_ideal * inputs.eta_combustion;
 
     v_e = sqrt(inputs.eta_nozzle * 2 * (kappa/(kappa-1)) * inputs.R_gas/Molar_mass * T_CC * (1 - (p_out/p_in)^((kappa-1)/kappa)));
 
     F_thrust = inputs.m_dot_tot * v_e;
 
+    key_values.T_CC_ideal = T_CC_ideal;
     key_values.T_CC = T_CC;
     key_values.Molar_mass = Molar_mass;
     key_values.v_e = v_e;

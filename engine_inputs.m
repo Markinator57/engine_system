@@ -18,7 +18,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.eta_nozzle = 0.96;               % (Ask teams and revise)
 
     %% Propellant properties
-    inputs.ROF = 3.4;                       % (Research and ask Thrust chamber)
+    inputs.ROF = 2.5;                       % (Research and ask Thrust chamber)
     [T_CC, M, k] = get_cea_properties(inputs.p_CC_req, inputs.ROF);
     inputs.T_CC_ideal = T_CC;               
     inputs.Molar_mass_CC_ideal = M;
@@ -33,21 +33,25 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     %% Pressures
     inputs.delta_p_inj_percent = 0.20;      % [-]       % (Ask Injector)
     inputs.delta_p_cooling_channels = 1e6;  % [Pa]      % (Research and ask Thrust Chamber)
-    inputs.delta_p_feed = 2e5;              % [Pa]      % (Research) 
+    inputs.delta_p_feed = 2e5;              % [Pa]      % (Research)
     inputs.delta_p_partial = inputs.delta_p_feed / 5;   % (Research and see if valid way to implement)
 
-    inputs.delta_p_pump_LCH4 = 14e6;        % [Pa]      % (First iteration, need only be decent)
-    inputs.delta_p_pump_LOx = 9.84e6;       % [Pa]      % (First iteration, need only be decent)
+    inputs.delta_p_pump_LCH4 = 6e6;         % [Pa]      % initial guess for solver — tuned to p_CC_req
 
     % Turbine exit pressure — forced by injector inlet requirement.
     % Injector model drops p by (1 - delta_p_inj_percent), so to land exactly at p_CC: p_in = p_CC / (1 - pct)
     inputs.p_turbine_exit = inputs.p_CC_req / (1 - inputs.delta_p_inj_percent);
 
+    % LOx pump rise derived from turbine exit pressure so the chain always closes:
+    % p_exit_LOx = p_tank + delta_p_pump_LOx - delta_p_partial = p_turbine_exit
+    p_tank_LOx = 2e5;                       % [Pa]  oxidizer tank pressure
+    inputs.delta_p_pump_LOx = inputs.p_turbine_exit - p_tank_LOx + inputs.delta_p_partial;
+
     %% Cooling assumptions
-    inputs.Q_dot = 5e6;                     % [J/s]     % (Ask Thrust Chamber)
+    inputs.Q_dot = 10e6;                     % [J/s]     % (Ask Thrust Chamber)
 
     %% Fuel properties (input here initial properties
-    properties_fuel.T = 110;                % [K]       % (Design choice, fairly unimportant, just a quick research)
+    properties_fuel.T = 110;                % [K]       % (Design choice, fairly easy, just a quick research)
     properties_fuel.p = 2e5;                % [Pa]
     properties_fuel.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties_fuel.p, 'T', properties_fuel.T, 'Methane');
     properties_fuel.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties_fuel.T, 'P', properties_fuel.p, 'Methane');
