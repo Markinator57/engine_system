@@ -2,8 +2,9 @@ function [properties, key_values] = sub_Cooling_channels(inputs, properties)
 
     % TODO: Research/ask for a more accurate esstimate of Q_dot
     %       Have Q_dot dependent on other quantities? percentage of energy in thrust chamber? Research
-    %       Check correct use of CoolProp over state transition into supercritical
+    %       --> Check correct use of CoolProp over state transition into supercritical
     %       Research validity of isobaric assumption
+    %       --> Research Heat going other places
 
     % m_dot * h_in + Q_dot = m_dot * h_out
     h_in = py.CoolProp.CoolProp.PropsSI('H', 'P', properties.p, 'T', properties.T, 'Methane');
