@@ -6,7 +6,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
 
     %% Engine requirements
     inputs.F_thrust_req = 40e3;             % [N]
-    inputs.p_CC_req = 80e5;                 % [Pa]
+    inputs.p_CC_req = 88e5;                 % [Pa]
 
     %% Efficiencies
     inputs.eta_pump_LOx = 0.70;             % (Ask teams and revise)
@@ -17,7 +17,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.eta_nozzle = 0.96;               % (Ask teams and revise)
 
     %% Propellant properties
-    inputs.ROF = 3.4;                       % (Research and ask Thrust chamber)  stoch
+    inputs.ROF = 3.23;                       % (Research and ask Thrust chamber)  stoch
     [T_CC, M, k] = get_cea_properties(inputs.p_CC_req, inputs.ROF);
     inputs.T_CC_ideal = T_CC;
     inputs.Molar_mass_CC_ideal = M;
@@ -30,7 +30,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.m_dot_oxidizer = inputs.m_dot_tot - inputs.m_dot_fuel;
 
     %% Pressures
-    inputs.delta_p_inj_percent = 0.20;      % [-]       % (Ask Injector)
+    inputs.delta_p_inj_percent = 0.10;      % [-]       % (Ask Injector)
     inputs.delta_p_cooling_channels = 15e5; % [Pa]      % (Research and ask Thrust Chamber)
     inputs.delta_p_feed = 5e5;              % [Pa]      % (Research) Total lines and valves losses
     inputs.delta_p_partial = inputs.delta_p_feed / 5;   % (Research and see if valid way to implement) 
@@ -46,7 +46,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.delta_p_pump_LOx = inputs.p_turbine_exit - p_tank_LOx + inputs.delta_p_partial;
 
     %% Cooling assumptions
-    inputs.Q_dot = 5e6;                     % [J/s]     % (Ask Thrust Chamber)
+    inputs.Q_dot = 4.3e6;                     % [J/s]     % (Ask Thrust Chamber)
 
     %% Fuel properties (input here initial properties
     properties_fuel.T = 110;                % [K]       % (Design choice, fairly easy, just a quick research)
