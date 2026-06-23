@@ -10,10 +10,10 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.Isp = 340;                       % [s]       % Needed?
 
     %% Efficiencies
-    inputs.eta_pump_LOx = 0.93;             % (Ask teams and revise)
-    inputs.eta_pump_LCH4 = 0.93;            % (Ask teams and revise)
-    inputs.eta_turbine_LOx = 0.90;          % (Ask teams and revise)
-    inputs.eta_turbine_LCH4 = 0.90;         % (Ask teams and revise)
+    inputs.eta_pump_LOx = 0.65;             % (Ask teams and revise)
+    inputs.eta_pump_LCH4 = 0.65;            % (Ask teams and revise)
+    inputs.eta_turbine_LOx = 0.70;          % (Ask teams and revise)
+    inputs.eta_turbine_LCH4 = 0.70;         % (Ask teams and revise)
     inputs.eta_combustion = 0.97;           % (Ask teams and revise)
     inputs.eta_nozzle = 0.96;               % (Ask teams and revise)
 
