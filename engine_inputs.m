@@ -30,7 +30,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.m_dot_oxidizer = inputs.m_dot_tot - inputs.m_dot_fuel;
 
     %% Pressures
-    inputs.delta_p_inj_percent = 0.10;      % [-]       % (Ask Injector)
+    inputs.delta_p_injector = 8e5;      % [-]       % (Ask Injector)
     inputs.delta_p_cooling_channels = 13e5; % [Pa]      % (Research and ask Thrust Chamber)
     inputs.delta_p_feed = 5e5;              % [Pa]      % (Research) Total lines and valves losses
     inputs.delta_p_partial = inputs.delta_p_feed / 5;   % (Research and see if valid way to implement) 
@@ -38,7 +38,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
 
     % Turbine exit pressure — forced by injector inlet requirement.
     % Injector model drops p by (1 - delta_p_inj_percent), so to land exactly at p_CC: p_in = p_CC / (1 - pct)
-    inputs.p_turbine_exit = inputs.p_CC_req / (1 - inputs.delta_p_inj_percent);
+    inputs.p_turbine_exit = inputs.p_CC_req + inputs.delta_p_injector;
 
     % LOx pump rise derived from turbine exit pressure so the chain always closes:
     % p_exit_LOx = p_tank + delta_p_pump_LOx - delta_p_partial = p_turbine_exit
