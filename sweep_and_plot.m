@@ -360,30 +360,41 @@ else
         end
     end
 
-    % Plot 3D surfaces (optional)
-    [X,Y] = meshgrid(grids{2}, grids{1}); % meshgrid cols=var2, rows=var1
+    % Plot 2D multi-line graphs (optional)
+    [X,Y] = meshgrid(grids{2}, grids{1}); % meshgrid cols=var2, rows=var1 (kept for compatibility)
     if opts.autoplot
         for k=1:num_active
             figure;
-            Z = data.(active_plotfields{k});
-            surf(X, Y, Z, 'EdgeColor','none');
-            xlabel(opts.varnames{2});
-            ylabel(opts.varnames{1});
-            zlabel(active_plotfields{k});
-            colorbar;
-            view(3);
+            f = active_plotfields{k};
+            hold on;
+            for j=1:ny
+                plot(grids{1}, data.(f)(:,j), '-o');
+            end
+            hold off;
+            xlabel(opts.varnames{1});
+            ylabel(f);
+            legendLabels = arrayfun(@(x) sprintf('%s=%.6g', opts.varnames{2}, x), grids{2}, 'UniformOutput', false);
+            legend(legendLabels, 'Interpreter','none', 'Location','best');
+            grid on;
+            title(sprintf('%s vs %s (lines for varying %s)', f, opts.varnames{1}, opts.varnames{2}));
         end
     end
     % Plot 2D probes (optional)
     if opts.autoplot && nprobes>0
         for pi=1:nprobes
             figure;
-            Z = probes_data.(probe_fields{pi});
-            surf(X, Y, Z, 'EdgeColor','none');
-            xlabel(opts.varnames{2});
-            ylabel(opts.varnames{1});
-            zlabel(results.probes_list{pi});
-            colorbar; view(3);
+            fname = probe_fields{pi};
+            hold on;
+            for j=1:ny
+                plot(grids{1}, probes_data.(fname)(:,j), '-o');
+            end
+            hold off;
+            xlabel(opts.varnames{1});
+            ylabel(results.probes_list{pi});
+            legendLabels = arrayfun(@(x) sprintf('%s=%.6g', opts.varnames{2}, x), grids{2}, 'UniformOutput', false);
+            legend(legendLabels, 'Interpreter','none', 'Location','best');
+            grid on;
+            title(sprintf('%s vs %s (lines for varying %s)', results.probes_list{pi}, opts.varnames{1}, opts.varnames{2}));
         end
     end
 end

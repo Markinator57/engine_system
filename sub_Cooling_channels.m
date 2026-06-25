@@ -21,4 +21,3 @@ function [properties, key_values] = sub_Cooling_channels(inputs, properties)
 
     key_values = delta_T;
 end
-
