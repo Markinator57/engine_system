@@ -1,0 +1,46 @@
+function [properties, key_values] = sub_PressureLoss_TanktoPump_LCH4(inputs, properties)
+    A = (5e-3)^2 * pi; % in m        Include this in inputs. It is the crosssectional area of the pipe. This value is tbd
+    v = m_dot_fuel / (properties.rho * A);
+    K = 0.05; % geometry factor for dynamic losses. Depends on tank - pipe interface geometry INCLUDE THIS IN INPUTS
+    L = 0.1;                % in m. Incllude THIS IN INPUTS. Value tbd
+    mu=py.CoolProp.CoolProp.PropsSI('V', 'P', properties.p, 'T', properties.T, 'Methane');  %mu is the inline viscosity
+    Re = (properties.rho * v * A) / mu;              % Reynold Number
+
+    % Total Dynamic Losses, right after tank outlet
+    dP_dyn = 1/2 * rho * v^2;
+    dP_geometric = K * dP_dyn;
+
+    dP_dyn_total = dP_dyn + dP_geometric;
+    
+    % Darcy Friction Factor calculation based on Reynolds Number range
+
+    if Re<2000
+    f_d = 64/Re;              
+
+    elseif Re>4000
+    arg = 0.629 .* Re;
+    W   = lambertw(0, arg);        % 0 selects principal branch (used for large numbers)
+    f_d = 1 ./ (0.838 .* W).^2;
+
+    else 
+    f_d = 0;
+    % XD NO SOLUTION
+    end
+    
+    % Total Friction Losses 
+
+    dP_fric = (L*f_d*properties.rho/2)*(v^2/A);         % calculates the losses due to friciton using the Darcy-Weisbach Equation
+
+    % Total Losses
+
+    dP_total = dP_fric + dP_dyn_total;
+
+    properties.p = properties.p - dP_total;
+    properties.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Methane');
+    properties.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties.T, 'P', properties.p, 'Methane');
+
+
+    key_values.deltaP = dP_total;
+    key_values.Re = Re;
+    
+end
