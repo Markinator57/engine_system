@@ -52,7 +52,7 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     %% Pressures
     inputs.delta_p_inj_fuel = 8e5;            % [Pa] fuel injector pressure drop
     inputs.delta_p_inj_oxidizer = 12e5;      % [Pa] oxidizer injector pressure drop
-    inputs.delta_p_cooling_channels = 22.1958e5; % [Pa]      % (Research and ask Thrust Chamber)
+    inputs.delta_p_cooling_channels = 24.1155e5; % [Pa]      % (Research and ask Thrust Chamber)
     inputs.delta_p_pump_LCH4 = 6e6;         % [Pa]      % initial guess for solver — tuned to p_CC_req
 
     % Injector inlet pressures required to land at chamber pressure after each injector drop.
@@ -69,7 +69,8 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.delta_p_pump_LOx = inputs.p_oxidizer_injector_inlet - p_tank_LOx;
 
     %% Cooling assumptions
-    inputs.Q_dot = 4.860611e6;                     % [J/s]     % (Ask Thrust Chamber)
+    inputs.Heating_radiation_factor = 1.03;  
+    inputs.Q_dot = 4.985422e6 * inputs.Heating_radiation_factor;                     % [J/s]     % (Ask Thrust Chamber)
 
     %% Fuel properties (input here initial properties) 
     properties_fuel.T = 110;                % [K]       % (Design choice, fairly easy, just a quick research)
