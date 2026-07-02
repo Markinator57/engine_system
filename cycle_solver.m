@@ -113,37 +113,106 @@ function [key_values, properties_flow, W_LCH4, W_LOx, P_LCH4, P_LOx] = run_cycle
     properties_flow.fuel.Tanks = properties_fuel;
     properties_flow.oxidizer.Tanks = properties_oxidizer;
 
-    %% Pumps
+
+
+    %% Pressure Loss. Tank to CH4 Pump
+    [properties_fuel, kv_Tank_to_Pump_LCH4] = sub_PressureLoss_Tank_to_Pump_LCH4(inputs, properties_fuel);
+    properties_flow.fuel.Pipe_Tank_to_Pump_LCH4 = properties_fuel;
+    key_values.Re_Tank_to_Pump_LCH4 = kv_Tank_to_Pump_LCH4.Re;
+    key_values.Pressures_Tank_to_Pump_LCH4 = kv_Tank_to_Pump_LCH4.Pressures;
+
+
+
+    %% Pumps CH4
     [properties_fuel, key_values.P_Pump_LCH4] = sub_Pump_LCH4(inputs, properties_fuel);
     properties_flow.fuel.Pump_LCH4 = properties_fuel;
     inputs.P_turbine_LCH4_needed = key_values.P_Pump_LCH4;
+    inputs.N_shaft_LCH4 = properties_fuel.RPM;
 
-    [properties_oxidizer, key_values.P_Pump_LOx] = sub_Pump_LOx(inputs, properties_oxidizer);
-    properties_flow.oxidizer.Pump_LOx = properties_oxidizer;
-    inputs.P_turbine_LOx_needed = key_values.P_Pump_LOx;
 
+    %% Pressure Loss. Pump to cooling channels
+    [properties_fuel, kv_Pump_LCH4_to_Cooling] = sub_PressureLoss_Pump_LCH4_to_Cooling(inputs, properties_fuel);
+    properties_flow.fuel.Pump_LCH4_to_Cooling = properties_fuel;
+    key_values.Re_Pump_LCH4_to_Cooling = kv_Pump_LCH4_to_Cooling.Re;
+    key_values.Pressures_Pump_LCH4_to_Cooling = kv_Pump_LCH4_to_Cooling.Pressures;
+
+    
     %% Cooling Channels (only fuel)
     [properties_fuel, key_values.delta_T_Cooling_Channels] = sub_Cooling_channels(inputs, properties_fuel);
     key_values.Q_dot_Cooling = inputs.Q_dot;
     properties_flow.fuel.Cooling_Channels = properties_fuel;
 
-    %% Turbines — p_turbine_LCH4_out and p_turbine_LOx_out set by solver
+    %% Pressure Loss. Cooling Channels to CH4 Turbine
+    [properties_fuel, kv_Cooling_to_Turbine_LCH4] = sub_PressureLoss_Cooling_to_Turbine_LCH4(inputs, properties_fuel);
+    properties_flow.fuel.Pipe_Cooling_to_Turbine_LCH4 = properties_fuel;
+    key_values.Pressures_Cooling_to_Turbine_LCH4 = kv_Cooling_to_Turbine_LCH4.Pressures;
+    key_values.Re_Cooling_to_Turbine_LCH4 = kv_Cooling_to_Turbine_LCH4.Re;
+
+    %% LCH4 Turbine
     [properties_fuel, kv_LCH4] = sub_Turbine_LCH4(inputs, properties_fuel);
     key_values.delta_p_Turbine_LCH4 = kv_LCH4.delta_p;
     key_values.W_Turbine_LCH4       = kv_LCH4.W_available;
     properties_flow.fuel.Turbine_LCH4 = properties_fuel;
+    W_LCH4 = kv_LCH4.W_available;
+    P_LCH4 = inputs.P_turbine_LCH4_needed;
+    
+    %% Pressure Loss. LCH4 Turbine to LOX Turbine
+    [properties_fuel, kv_Turbine_LCH4_to_Turbine_LOX] = sub_PressureLoss_Turbine_LCH4_to_Turbine_LOX(inputs, properties_fuel);
+    properties_flow.fuel.Pipe_Turbine_LCH4_to_Turbine_LOX = properties_fuel;
+    key_values.Re_Turbine_LCH4_to_Turbine_LOX = kv_Turbine_LCH4_to_Turbine_LOX.Re;
+    key_values.Pressures_Turbine_LCH4_to_Turbine_LOX = kv_Turbine_LCH4_to_Turbine_LOX.Pressures;
 
+
+
+    %% Pressure Loss. Tank to LOX Pump
+    [properties_oxidizer, kv_Tank_to_LOX_Pump] = sub_PressureLoss_Tank_to_LOX_Pump(inputs, properties_oxidizer);
+    properties_flow.oxidizer.Pipe_PressureLoss_Tank_to_LOX_Pump = properties_oxidizer;
+    key_values.Pressures_Tank_to_LOX_Pump = kv_Tank_to_LOX_Pump.Pressures;
+    key_values.Re_Tank_to_LOX_Pump = kv_Tank_to_LOX_Pump.Re;
+
+
+
+    %% Pumps LOx
+    [properties_oxidizer, key_values.P_Pump_LOx] = sub_Pump_LOx(inputs, properties_oxidizer);
+    properties_flow.oxidizer.Pump_LOx = properties_oxidizer;
+    inputs.P_turbine_LOx_needed = key_values.P_Pump_LOx;
+    inputs.N_shaft_LOx= properties_oxidizer.RPM;
+
+
+    %% Pressure Loss. LOX Pump to Injector
+    [properties_oxidizer, kv_LOX_Pump_to_Injector] = sub_PressureLoss_LOX_Pump_to_Injector(inputs, properties_oxidizer);
+    properties_oxidizer.p = inputs.p_oxidizer_injector_inlet;
+    properties_oxidizer.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties_oxidizer.p, 'T', properties_oxidizer.T, 'Oxygen');
+    properties_oxidizer.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties_oxidizer.T, 'P', properties_oxidizer.p, 'Oxygen');
+    properties_flow.oxidizer.Pipe_PressureLoss_LOX_Pump_to_Injector = properties_oxidizer;
+    key_values.Pressures_LOX_Pump_to_Injector = kv_LOX_Pump_to_Injector.Pressures;
+    key_values.Re_LOX_Pump_to_Injector = kv_LOX_Pump_to_Injector.Re;
+
+
+
+
+    %% LOX Turbine
     [properties_fuel, kv_LOx] = sub_Turbine_LOx(inputs, properties_fuel);
     key_values.delta_p_Turbine_LOx = kv_LOx.delta_p;
     key_values.W_Turbine_LOx       = kv_LOx.W_available;
     properties_flow.fuel.Turbine_LOx = properties_fuel;
 
-    W_LCH4 = kv_LCH4.W_available;
     W_LOx  = kv_LOx.W_available;
-    P_LCH4 = inputs.P_turbine_LCH4_needed;
     P_LOx  = inputs.P_turbine_LOx_needed;
 
+    %% Pressure Loss. LOX Turbine to Injector
+    [properties_fuel, kv_Turbine_LOX_to_Injector] = sub_PressureLoss_Turbine_LOX_to_Injector(inputs, properties_fuel);
+    properties_fuel.p = inputs.p_fuel_injector_inlet;
+    properties_fuel.rho = py.CoolProp.CoolProp.PropsSI('D', 'P', properties_fuel.p, 'T', properties_fuel.T, 'Methane');
+    properties_fuel.c_p = py.CoolProp.CoolProp.PropsSI('CPMASS', 'T', properties_fuel.T, 'P', properties_fuel.p, 'Methane');
+    properties_flow.fuel.Pipe_Turbine_LOX_to_Injector = properties_fuel;
+    key_values.Pressures_Turbine_LOX_to_Injector = kv_Turbine_LOX_to_Injector.Pressures;
+    key_values.Re_Turbine_LOX_to_Injector = kv_Turbine_LOX_to_Injector.Re;
+
     %% Injectors
+    key_values.InjectorPressureTargets.fuel = inputs.p_fuel_injector_inlet;
+    key_values.InjectorPressureTargets.oxidizer = inputs.p_oxidizer_injector_inlet;
+
     [properties_fuel, key_values.TC_Ingoing_fuel] = sub_Injector_CH4(inputs, properties_fuel);
     properties_flow.fuel.Injector = properties_fuel;
 
@@ -152,4 +221,17 @@ function [key_values, properties_flow, W_LCH4, W_LOx, P_LCH4, P_LOx] = run_cycle
 
     %% Thrust Chamber
     key_values.Thrust_Chamber = sub_Thrust_Chamber(inputs, properties_oxidizer, properties_fuel);
+
+   %% Total Irreversible Pressure Losses
+    key_values.TotalDeltaP_irreversible_CH4 = ...
+        key_values.Pressures_Tank_to_Pump_LCH4.dP_irreversible + ...
+        key_values.Pressures_Pump_LCH4_to_Cooling.dP_irreversible + ...
+        key_values.Pressures_Cooling_to_Turbine_LCH4.dP_irreversible + ...
+        key_values.Pressures_Turbine_LCH4_to_Turbine_LOX.dP_irreversible + ...
+        key_values.Pressures_Turbine_LOX_to_Injector.dP_irreversible;
+    
+    key_values.TotalDeltaP_irreversible_LOX = ...
+        key_values.Pressures_Tank_to_LOX_Pump.dP_irreversible + ...
+        key_values.Pressures_LOX_Pump_to_Injector.dP_irreversible;
+
 end
