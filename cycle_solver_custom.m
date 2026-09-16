@@ -24,9 +24,11 @@ function [key_values, properties_flow] = cycle_solver_custom(inputs, pf0, po0, d
         inputs.m_dot_tot = inputs.F_thrust_req / inputs.v_e_ideal;
         inputs.m_dot_fuel = inputs.m_dot_tot / (inputs.ROF + 1);
         inputs.m_dot_oxidizer = inputs.m_dot_tot - inputs.m_dot_fuel;
-        inputs.p_turbine_exit = inputs.p_CC_req + inputs.delta_p_injector;
+        inputs.p_fuel_injector_inlet = inputs.p_CC_req + inputs.delta_p_inj_fuel;
+        inputs.p_oxidizer_injector_inlet = inputs.p_CC_req + inputs.delta_p_inj_oxidizer;
+        inputs.p_turbine_exit = inputs.p_fuel_injector_inlet;
         p_tank_LOx = 2e5;                       % [Pa]  oxidizer tank pressure
-        inputs.delta_p_pump_LOx = inputs.p_turbine_exit - p_tank_LOx + inputs.delta_p_partial;
+        inputs.delta_p_pump_LOx = inputs.p_oxidizer_injector_inlet - p_tank_LOx + inputs.delta_p_partial;
     end
 
     % Initial guess: current pump delta_p + midpoint pressure for p_mid
