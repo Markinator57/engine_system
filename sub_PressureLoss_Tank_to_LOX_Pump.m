@@ -1,6 +1,6 @@
 function [properties, key_values] = sub_PressureLoss_Tank_to_LOX_Pump(inputs, properties)
 
-    D   = inputs.D_Tank_to_Pump;
+    D   = inputs.D_Tank_to_LOX_Pump;
     A   = (D/2)^2 * pi;
     L   = inputs.L_Tank_to_Pump;
     K   = 0.8;          % Combined minor-loss coefficient for oxidizer feedline bends, valves, and control-system losses only
@@ -12,6 +12,11 @@ function [properties, key_values] = sub_PressureLoss_Tank_to_LOX_Pump(inputs, pr
     q_inlet      = 0.5 * properties.rho * v_inlet^2;
     dP_geom      = K * q_inlet;
     properties.p = properties.p - dP_geom;
+
+    %% Tank Outlet Isolation Valve (ball valve) — located at line midpoint
+    % K = 3*f_T, Crane clean-commercial-steel f_T at D = 63 mm -> f_T = 0.018
+    K_valve = 0.054;
+    N_half  = N / 2;
 
     %% Segmented Darcy-Weisbach integration
     dP_fric_total = 0;
@@ -28,6 +33,15 @@ function [properties, key_values] = sub_PressureLoss_Tank_to_LOX_Pump(inputs, pr
         dP_i          = f_i * (dx / D) * q_i;
         dP_fric_total = dP_fric_total + dP_i;
         properties.p  = properties.p - dP_i;
+
+        % Tank Outlet Isolation Valve, applied once at the line midpoint
+        if i == N_half
+            rho_v        = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Oxygen');
+            v_v          = inputs.m_dot_oxidizer / (rho_v * A);
+            q_v          = 0.5 * rho_v * v_v^2;
+            dP_valve     = K_valve * q_v;
+            properties.p = properties.p - dP_valve;
+        end
     end
 
     %% Final properties update
@@ -41,7 +55,9 @@ function [properties, key_values] = sub_PressureLoss_Tank_to_LOX_Pump(inputs, pr
     %% Output
     key_values.Pressures.dP_fric         = dP_fric_total;
     key_values.Pressures.dP_geom         = dP_geom;
-    key_values.Pressures.dP_irreversible = dP_fric_total + dP_geom;
+    key_values.Pressures.dP_valve        = dP_valve;
+    key_values.Pressures.K_valve         = K_valve;
+    key_values.Pressures.dP_irreversible = dP_fric_total + dP_geom + dP_valve;
     key_values.Pressures.dP_dyn          = dP_dyn;
     key_values.Re                        = (properties.rho * properties.v * D) / ...
                                             py.CoolProp.CoolProp.PropsSI('V', 'P', properties.p, 'T', properties.T, 'Oxygen');

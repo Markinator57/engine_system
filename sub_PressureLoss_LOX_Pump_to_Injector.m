@@ -13,6 +13,16 @@ function [properties, key_values] = sub_PressureLoss_LOX_Pump_to_Injector(inputs
     dP_geom      = K * q_inlet;
     properties.p = properties.p - dP_geom;
 
+    %% Main Oxidizer Valve (ball valve) — located at line midpoint
+    % K = 3*f_T, Crane clean-commercial-steel f_T at D = 80 mm -> f_T = 0.018
+    K_valve = 0.054;
+    N_half  = N / 2;
+
+    %% Check Valve (swing check, downstream of Main Oxidizer Valve, before injector)
+    % K = 100*f_T, Crane clean-commercial-steel f_T at D = 80 mm -> f_T = 0.018
+    K_check = 1.80;
+    N_check = round(N * 0.75);
+
     %% Segmented Darcy-Weisbach integration
     dP_fric_total = 0;
 
@@ -28,6 +38,24 @@ function [properties, key_values] = sub_PressureLoss_LOX_Pump_to_Injector(inputs
         dP_i          = f_i * (dx / D) * q_i;
         dP_fric_total = dP_fric_total + dP_i;
         properties.p  = properties.p - dP_i;
+
+        % Main Oxidizer Valve, applied once at the line midpoint
+        if i == N_half
+            rho_v        = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Oxygen');
+            v_v          = inputs.m_dot_oxidizer / (rho_v * A);
+            q_v          = 0.5 * rho_v * v_v^2;
+            dP_valve     = K_valve * q_v;
+            properties.p = properties.p - dP_valve;
+        end
+
+        % Check Valve, applied downstream of the Main Oxidizer Valve
+        if i == N_check
+            rho_c        = py.CoolProp.CoolProp.PropsSI('D', 'P', properties.p, 'T', properties.T, 'Oxygen');
+            v_c          = inputs.m_dot_oxidizer / (rho_c * A);
+            q_c          = 0.5 * rho_c * v_c^2;
+            dP_check     = K_check * q_c;
+            properties.p = properties.p - dP_check;
+        end
     end
 
     %% Final properties update
@@ -41,7 +69,11 @@ function [properties, key_values] = sub_PressureLoss_LOX_Pump_to_Injector(inputs
     %% Output
     key_values.Pressures.dP_fric         = dP_fric_total;
     key_values.Pressures.dP_geom         = dP_geom;
-    key_values.Pressures.dP_irreversible = dP_fric_total + dP_geom;
+    key_values.Pressures.dP_valve        = dP_valve;
+    key_values.Pressures.K_valve         = K_valve;
+    key_values.Pressures.dP_check        = dP_check;
+    key_values.Pressures.K_check         = K_check;
+    key_values.Pressures.dP_irreversible = dP_fric_total + dP_geom + dP_valve + dP_check;
     key_values.Pressures.dP_dyn          = dP_dyn;
     key_values.Re                        = (properties.rho * properties.v * D) / ...
                                             py.CoolProp.CoolProp.PropsSI('V', 'P', properties.p, 'T', properties.T, 'Oxygen');

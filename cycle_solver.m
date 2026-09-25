@@ -1,4 +1,4 @@
-function [key_values, properties_flow] = cycle_solver()
+function [key_values, properties_flow] = cycle_solver(ROF_override, make_plot, D_override)
 
     % Solves for [delta_p_pump_LCH4, p_mid] simultaneously using Newton-Raphson
     % with backtracking line search (no Optimization Toolbox required).
@@ -8,7 +8,11 @@ function [key_values, properties_flow] = cycle_solver()
 
     % TODO: Add *more* visualization tools for the flow values all over the cycle
 
-    [inputs, pf0, po0] = engine_inputs();
+    if nargin < 1; ROF_override = []; end
+    if nargin < 2; make_plot = true; end
+    if nargin < 3; D_override = []; end
+
+    [inputs, pf0, po0] = engine_inputs(ROF_override, D_override);
 
     % Initial guess: current pump delta_p + midpoint pressure for p_mid
     p_in_est   = pf0.p + inputs.delta_p_pump_LCH4 - inputs.delta_p_cooling_channels;
@@ -39,7 +43,9 @@ function [key_values, properties_flow] = cycle_solver()
     fprintf('Cycle CONVERGED (|r| < 1 kW).\n');
 
     [key_values, properties_flow] = run_cycle(inputs, pf0, po0);
-    plot_cycle(key_values, properties_flow)
+    if make_plot
+        plot_cycle(key_values, properties_flow)
+    end
 end
 
 % -------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
+function [inputs, properties_fuel, properties_oxidizer] = engine_inputs(ROF_override, D_override)
     %% Pipes and Valves. Geometries
     % --- CH4 (Fuel) Line ---
     inputs.L_Tank_to_Pump              = 1.50;   % [m] Tank outlet to CH4 pump inlet
@@ -13,7 +13,8 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
     inputs.L_OxPump_to_Injector       = 1.20;   % [m] LOX pump outlet to injector (bypass / direct line)
     
     % --- Pipe Inner Diameters ---
-    inputs.D_Tank_to_Pump             = 0.063;  % [m] ~63 mm | CH4 tank outlet (low-pressure, low velocity)
+    inputs.D_Tank_to_Pump_LCH4         = 0.063;  % [m] ~63 mm | CH4 tank outlet (low-pressure, low velocity)
+    inputs.D_Tank_to_LOX_Pump          = 0.063;  % [m] ~63 mm | LOx tank outlet (independent line, was aliased to D_Tank_to_Pump)
     inputs.D_Pump_to_Cooling_Inlet    = 0.040;  % [m] ~40 mm | High-pressure CH4 after pump
     inputs.D_Cooling_Outlet_to_Turbine= 0.040;  % [m] ~40 mm | Supercritical CH4, high pressure
     inputs.D_TurbineCH4_to_TurbineOx  = 0.050;  % [m] ~50 mm | Hot gas crossover duct
@@ -38,6 +39,15 @@ function [inputs, properties_fuel, properties_oxidizer] = engine_inputs()
 
     %% Propellant properties
     inputs.ROF = 3.09;                       % (Research and ask Thrust chamber)  stoch
+    if nargin > 0 && ~isempty(ROF_override)
+        inputs.ROF = ROF_override;
+    end
+    if nargin > 1 && ~isempty(D_override)
+        fn = fieldnames(D_override);
+        for k = 1:numel(fn)
+            inputs.(fn{k}) = D_override.(fn{k});
+        end
+    end
     [T_CC, M, k] = get_cea_properties(inputs.p_CC_req, inputs.ROF);
     inputs.T_CC_ideal = T_CC;
     inputs.Molar_mass_CC_ideal = M;
